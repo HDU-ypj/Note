@@ -281,7 +281,7 @@ Q：cairo图形库
 
 A：用来构建图形界面，开源
 
-
+tips:好用的截屏软件snipaste
 
 Q:inband_fec_count,前向纠错（Forward Error Correction，FEC）
 A:音频或视频编码器中使用的一种纠错技术,每隔多少个数据包就会插入一个FEC包，以提高数据的可靠性和抗丢包能力。inband_fec_count的命名中，inband表示“带内”的意思，表示这种FEC技术是在数据流中直接插入FEC包，而不是通过另外的信道传输FEC包；fec表示“前向纠错”的意思，表示这种技术是通过在数据流中插入冗余数据来实现错误纠正；count表示“计数”的意思，表示这个变量是用来记录插入FEC包的计数器。
@@ -338,3 +338,80 @@ ls -lha
 
 netstat
 top 查看进程情况
+
+
+画面黑屏：I帧没有正常读取，所以后续的帧没有正常解码
+音频和视频的编码器都是aaclc格式正常吗？
+为什么每次vpts增加3000
+
+
+
+demo设置通道参数，调用转码Start(),转码调用StartTranscode(),转码调用StartTranscoderImpl(),workTranscode(),进入死循环，处理一次数据OnHeartbeat(),ProcessYealinkRecordFile(),从中间文件读取数据后将数据放入jitterbuffer
+
+
+mp4v2开源库，可以将h264和aac混成mp4
+二进制查看工具 HXD
+h264码流查看工具：Elecard Streameye
+git管理：git，小乌龟
+远程工具:vs的remote ssh，winterm
+vs
+记笔记：sublime text
+打包依赖文件：dependencies
+虚拟摄像头：e2eSoft VCam
+思维导图：xmind
+编译工具：cmake
+代码对比工具：beyond compare
+
+<locale>头文件的facet进行字符编码转换。
+
+grep -E "a|b"//可以支持匹配多个
+
+NV12 在硬件系统中用的比较多 YYYYUVUV
+YV12（又叫I420）图像处理用的比较多，YYYYUUVV
+
+chatgpt free:
+https://chatbb.free2gpt.xyz/
+
+常见视频编码格式
+无版权编码格式：
+VP8
+VP9
+AV1
+
+有版权编码格式：
+H.262
+H.264
+H.265
+
+常见音频编码格式:
+MP3
+AAC
+
+
+
+编码器是实现某种编码格式的库文件。只有安装了某种格式的编码器，才能实现该格式视频/音频的编码和解码。
+以下是一些 FFmpeg 内置的视频编码器
+
+libx264：最流行的开源 H.264 编码器
+NVENC：基于 NVIDIA GPU 的 H.264 编码器
+libx265：开源的 HEVC 编码器
+libvpx：谷歌的 VP8 和 VP9 编码器
+libaom：AV1 编码器
+
+音频编码器：
+libfdk-aac
+aac
+
+ffmpeg {1} {2} -i {3} {4} {5}
+
+1、全局参数
+2、输入文件参数
+3、输入文件
+4、输出文件参数
+5、输出文件
+
+
+话机，avc
+
+单个大括号标识一个作用域，就算没有if或者while这些，它也算是一个作用域
+
