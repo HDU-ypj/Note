@@ -1,0 +1,131 @@
+media_data_gather.h 这个里面包含了很多的解码后的数据处理，每一个ccid对应了一个list存放解码后的数据，
+
+media_data_gather.cpp
+DecodeVideo解码视频
+
+video_mixer.cpp
+包含了布局后的处理，混屏之后的数据提取，GetMediaData函数将混屏后的数据拿出，并且进行编码，生成h264码流
+GetMediaData
+
+media_decoder_manager.cpp
+DoDecode参数调用
+
+
+输入编码器的帧数量多于输出，有时候编码器会丢帧
+输入编码器的视频帧数量：2261
+输出编码器的视频帧数量：2231
+消费的视频帧数量：2231
+
+
+首先解码器有延时出帧的情况，但是解码器解出来的数据正常，布局并且编码后数据正常，那么接下来就是MP4打包码流
+
+软编出来打包mp4没有问题，说明mp4模块没有问题，编码后能播放说明编码没问题，编码和mp4打包模块之间的联系肯定哪里有问题
+
+class FrameToBuffer
+{
+public:
+    FrameToBuffer()
+    {
+        
+    }
+    ~FrameToBuffer()
+    {
+        for(auto st:file_src)
+        {
+            fclose(st.second);
+        }
+        file_src.clear();
+    }
+    int WriteFile(int id,const char* path,UmplVidFrmShl& frame)
+    {
+        if(file_src.find(id)!=file_src.end())
+        {
+            WriteHWFrameToFile(frame,file_src[id]);
+        }
+        else
+        {
+            FILE* temp = fopen(path,"wb");
+            file_src[id] = temp;
+            WriteHWFrameToFile(frame,file_src[id]);
+        }
+        return 0;
+    }
+    int WriteFile(int id,const char* path,const void* ptr,int len)
+    {
+        if(file_src.find(id)!=file_src.end())
+        {
+            fwrite(ptr,1,len,file_src[id]);
+        }
+        else
+        {
+            FILE* temp = fopen(path,"wb");
+            file_src[id] = temp;
+            fwrite(ptr,1,len,file_src[id]);
+        }
+        return 0;
+    }
+private:
+    std::map<int,FILE*> file_src;
+};
+
+
+media_decoder_manager.cpp ondecoded 
+INFO_TRACE("[test]:after_dec,ccid:"<<ccId<<",pts:"<<frm->GetDecodeStatis()->decode_render_time_ms<<",cnt="<<++cnt);
+
+void CMediaDecoderManager::DoDecode(CCID ccId, SessionType sessionType, const DecodeParam& param)
+
+分隔符0x00000001
+nalu头 7sps 8pps
+
+CPreDecodeBufferj解码前的原始码流数据
+media_data_gather定义了解码前和编码前的行为
+
+设置传回map每一个ccid的原始数据解码器需要多少，
+1、如果当前解码buffer中每一个ccid
+
+
+
+put和get之间找到一帧没有get
+编码后都能播放，为什么
+
+
+INFO_TRACE("[test]:start transcode  "<<(int)has_video_not_out << ",pts ["<<_media_play.play_time<<"<-------->"<<_media_play.play_time+_media_play.min_interval<<"]");
+
+/home/yangpj/sfu_transcoder/test/linux/recordfile/0/1_1696853073_51530_0.mp4
+/home/yangpj/sfu_transcoder/test/linux/recordfile/0/1699350399530.mp4
+
+
+INFO_TRACE("[test]:pre_dec,ccid:"<<ccId<<",pts:"<<param.playbackStamp<<",cnt="<<++input_count);
+
+
+
+塞进解码器的帧
+INFO_TRACE("[test]:put into hw decoder: pts:"<<frame->data.playback_stamp<<",size="<<dec_count_map[cid].size());
+INFO_TRACE("[test]:create and put into hw decoder: pts:"<<frame->data.playback_stamp);
+
+解码拿到的帧
+INFO_TRACE("[test]:decoded data,ccid:"<<ccId<<",pts:["<<frm->GetDecodeStatis()->decode_render_time_ms<<"],cnt="<<++cnt);
+
+如果在解码后被扔掉(时间戳比较来看，当前时间戳已经进行编码处理过了)
+INFO_TRACE_THIS("[test]:"<<"discard frame!!!:"<<list_itr->_vid_ref->GetDecodeStatis()->decode_render_time_ms<<",min_ts:"<<min_ts<<",ccid:"<<itr->first);
+
+转码开始，EncodeOneMedia之前打印此次转码的时间戳范围
+INFO_TRACE("[test]:start transcode  "<<(int)has_video_not_out << ",pts ["<<_media_play.play_time<<"<-------->"<<_media_play.play_time+_media_play.min_interval<<"]");
+
+从解码中取得的对应时间戳范围的数据
+INFO_TRACE("[test]:get origin straem,ccid:"<<it._ccid<<" pts:["<<it._vid_ref->GetDecodeStatis()->decode_render_time_ms<<"]");
+
+OnHeartbeat
+INFO_TRACE("[test]: undec_size:"<<undec_size<<",unencv_size:"<<unencv_size);
+
+筛选解码器中没解的和解出来的数量
+cat engsrv_demo_linux_w.log |grep -E "undec_size|start transcode"
+
+筛选输入输出情况
+cat engsrv_demo_linux_w.log |grep -E "put into|create and put|decoded data|start transcode"
+
+
+底层硬件限制吐帧数量
+
+时间戳功能正常
+静态图片正常

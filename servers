@@ -1,0 +1,140 @@
+
+
+10.4.2.34 yangpj/123
+10.4.11.111 root/yealink2011
+10.4.11.161 root/Yms.yealink
+10.4.12.162 root/Admin123@pl		819a4845f4f5 docker-gcc    国产化的
+10.4.11.160/root/Yms.yealink
+
+Yms.yealink
+
+网页端会控 9999/V123456798
+
+
+10.4.11.160下的录制环境docker容器：d6710ce19d1f
+docker exec -it d6710ce19d1f /bin/bash
+
+
+/usr/bin/docker run --device=/dev/nvme0:/dev/nvme0 \
+--device=/dev/nvme0n1:/dev/nvme0n1 \
+--device=/dev/nvme1:/dev/nvme1 \
+--device=/dev/nvme1n1:/dev/nvme1n1 \
+--device=/dev/nvme2:/dev/nvme2 \
+--device=/dev/nvme2n1:/dev/nvme2n1 \
+--device=/dev/nvme3:/dev/nvme3 \
+--device=/dev/nvme3n1:/dev/nvme3n1 \
+--device=/dev/nvme4:/dev/nvme4 \
+--device=/dev/nvme4n1:/dev/nvme4n1 \
+--device=/dev/nvme5:/dev/nvme5 \
+--device=/dev/nvme5n1:/dev/nvme5n1 \
+--device=/dev/nvme6:/dev/nvme6 \
+--device=/dev/nvme6n1:/dev/nvme6n1 \
+--name=test-docker-yangpj --net=host -td -v /home/yangpj:/home registry.yealinkops.com/build-tools/cstack:1.1.0.3 /bin/bash
+
+
+
+
+/usr/bin/docker run --device=/dev/nvme0:/dev/nvme0 \
+--device=/dev/nvme0n1:/dev/nvme0n1 \
+--name=test-docker-yangpj --net=host -td -v /home/yangpj:/home registry.yealinkops.com/build-tools/cstack:1.1.0.3 /bin/bash
+
+
+
+亿联会议上测试需要登录对应服务器上的成员账号
+密码一般是:
+Aa123456
+V123456789
+
+亿联会议首页alt+F5按五次
+系统配置-网络管理-设置主域名
+
+录制布局切换，显示布局切换，字幕显示，暂定录制并重新录制，共享屏幕
+
+/opt/unigw/log/log2 日志
+/opt/unigw/lib 库文件
+
+升级容器：
+升级一下容器，你问下汪龙看最新的是哪个版本
+修改 /home/apollo_deploy/globals.yml 文件，把截图里面的版本号改成最新版本
+保存，然后执行  ./scripts/install.sh deploy -m streaming-recording 
+
+
+环境升级：
+ UC升级
+ 10.4.11.100
+ cd /home/apollo_deploy
+  vi globals.yml
+bash scripts/install.sh deploy -m unigw-siph323
+
+relsease的 大多都是写  cr.yealinkops.com    dev的 cr-dev.yealinkops.com
+registry.yealinkops.com/uc/mediation/unigw:40.3.0.16-amd64
+
+
+UHENC 硬件的日志
+decide
+
+/* video frame shell */
+class VidFrmShl
+
+
+存放服务器上的中间文件的路径：
+/opt/apollo/user_data/streaming-recording/record/52
+在会控界面按F12进入开发者模式，在网络栏，找list，
+
+
+
+
+
+
+翰博板卡驱动：/root/vastai/x86/0830/vastaiutil_deploy
+安装完后，接口和库会安装到这个目录下  /opt/vastai/vaststream/
+
+
+
+程序 入口 json文件
+
+
+
+
+User SDK Interface：提供不同层次的抽象与封装、以方便开发者灵活使用。
+
+– VACM(Vastai Common Library，瀚博 SDK 通用库) 提供日志管理 (vslog)、设备及其上
+下文管理 (Device&Context)、数据缓冲管理 (DataBuffer)、数据集管理 (Dataset)、张
+量 (Tensor)、内存管理 (Memory)、辅助工具以及操作系统调用 (Event 和 Mutex) 等功
+能的跨平台封装。
+
+– VACE(Vastai Compute Engine，瀚博图像运算引擎) 提供常见图像变换处理所需要的
+算子和接口。
+
+– VAME(Vastai Media Engine，瀚博媒体处理引擎) 提供图像、视频处理的通用接口平台，
+支持媒体数据处理系统底层初始化、编解码操作等功能。
+
+– VAML(Vastai Management Library，瀚博设备管理库) 提供硬件监测与板卡状态检测
+接口管理平台。
+
+‧ Low Level Video lib：提供媒体加速处理库，以在瀚博设备上进行视频编解码的加速处理，
+从而提高性能并减轻 CPU 的负担。
+
+‧ Runtime：负责管理和协调软件与硬件之间的交互，以实现高效的视频编解码处理，为设备
+管理、数据传输、错误和异常处理等功能提供支持。
+‧ Vastai Container：为所有的媒体处理作业提供瀚博设备的容器化支持，使其能够以 Docker
+容器的方式运行在瀚博设备之上。
+‧ Host OS：用于运行操作系统和相关的驱动程序，并管理和调度设备的计算资源。
+‧ Driver：用于实现操作系统与硬件设备之间的交互与通信，作为硬件和软件之间的桥梁，为
+系统对硬件设备的访问和控制功能提供支持。
+
+
+
+
+解码接口
+编码接口
+
+
+vastaiScaleOp 尺寸变换，输入一张yuv图片，可以输出多路不同尺寸yuv图片
+VastaiBlendingOp 混合变换，将多路图片混成一张
+VastaiOverlayOp yuva叠加
+VastaiMultiOverlayOp yuva叠加到多路不同尺寸的yuv图片上
+
+
+
+将打包出来的转码sdk放到工程里，然后相当于跑demo一样跑出结果对吧

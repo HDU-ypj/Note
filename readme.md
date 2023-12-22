@@ -415,3 +415,303 @@ ffmpeg {1} {2} -i {3} {4} {5}
 
 单个大括号标识一个作用域，就算没有if或者while这些，它也算是一个作用域
 
+time_t时间单位为s，time_t t1 = time(0);
+
+
+布局的中间文件是全部读出来吗？音频媒体的是每次读200帧出来
+
+rpm是Red Hat Package Manager的缩写，这是一种在基于RPM的Linux发行版上用于管理软件包的工具。
+rpm -qa
+
+linux中bash指令后面加一个 &表示将命令执行放置到后台，不会占用当前终端
+jobs显示正在运行的进程，fg可以将后台运行的程序放前台运行，bg将任务放到后台执行
+
+
+音视频基础知识：https://juejin.cn/post/7239188617620553783
+
+
+90p 分辨率：160 x 90 像素
+240p 分辨率：426 x 240 像素
+360p 分辨率：640 x 360 像素
+480p 分辨率：854 x 480 像素
+720p 分辨率：1280 x 720 像素
+1080p 分辨率：1920 x 1080 像素
+1440p 分辨率：2560 x 1440 像素
+4K UHD 分辨率：3840 x 2160 像素
+
+
+hevc又称h265
+avc又称h264
+svc是avc加上时间分层
+
+ldd命令可以查看动态库的依赖
+
+查看yuv格式的图片工具   7yuv
+
+
+
+
+临时更换gcc软连接版本：
+cd /usr/bin
+mv gcc gcc.bk
+sudo ln -s /opt/rh/devtoolset-9/root/usr/bin/gcc gcc
+rm gcc -f
+mv gcc.bk gcc
+
+
+更新驱动：
+rpm -qa | grep vastai-pci  //检查安装的驱动
+sudo rpm -e `rpm -qa | grep vastai-pci`                 // 删除驱动
+sudo rpm -e `rpm -qa | grep -i Vaststream`              // 删除sdk
+
+sudo rpm -i vastai-pci-d3-2-v2-6-a1-6-hwtype-1_00.23.11.09_x86_64.rpm       // 安装驱动
+
+
+./vaprofiler -v 4           // 查看编解码通用信息
+
+
+```
+1、创建硬件中的句柄 
+    vacmDataHandle outputHandle
+    可以通过loadtodevice将图片存入硬件设备中
+    
+2、创建数据集 
+    vacmDataset *datasetOut = nullptr;
+    vacmCreateDataset(vacmDM_BUFFER, &datasetOut);
+3、创建数据buffer 
+    vacmDataBuffer *outputBuffer = nullptr;
+    vacmCreateDataBuffer(devInfo, outputHandle, outputSize, &outputBuffer);
+4、添加数据buffer到数据集中
+    vacmAddDatasetBuffer(datasetOut, outputBuffer);
+```
+
+进入test目录
+./build.sh
+
+add_subdirectory(dec_only)      只测解码 n路
+add_subdirectory(enc_only)      解码一路，复用n路编码
+add_subdirectory(dec_blend_enc7_7)  n个线程，每个线程一个解码器和编码器，同时编解码
+add_subdirectory(multy_77)      n路解码，合并到一路混屏，一路编码，(测试)
+
+
+using ChannelType = int;
+using ActionDataType = Data<sfurec::ConfActionInfo>;
+using MediaFrameDataType = Data<sfurec::MediaFrame>;
+
+
+using 可以重命名
+
+
+命令模式：将命令都打包成一个个的对象，这样可以将这个对象放入队列等结构中顺序执行
+
+```
+class ICommand
+{
+public:
+    virtual void handle() = 0;
+};
+
+class AddCMD:ICommand
+{
+public:
+    void handle()
+    {
+        std::cout << "add cmd" << std::endl;
+    }
+};
+
+class DelCMD:ICommand
+{
+public:
+    void handle()
+    {
+        std::cout << "del cmd" << std::endl;
+    }
+};
+
+
+class Server
+{
+public:
+    void addCommod(ICommand* cmd)
+    {
+        _cmds.push_back(cmd);
+    }
+
+    void startHandle
+    {
+        while(!_cmds.empty())
+        {
+            ICommand* cmd = _cmds.front();
+            cmd->handle();
+            _cmds.pop();
+        }
+    }
+
+private:
+    std::queue<ICommand*> _cmds;
+};
+
+
+```
+
+
+单例模式，只允许有一个实例存在，不允许在外部创建实例，只能调用接口获得实例，通常使用饿汉模式
+
+```
+#include <atomic>
+#include <mutex>
+
+class SingleMode
+{
+public:
+    SingleMode* getInstance()
+    {
+        SingleMode* inst = _instance.load();
+        if(inst == nullptr)
+        {
+            std::lock_guard<std::mutex> lock(_mutex);
+            inst = _instance.load();
+            if(inst == nullptr)
+            {
+                inst = new SingleMode;
+                _instance.store(inst);
+            }
+        }
+        return inst;
+    }
+private:
+    SingleMode() = default;
+    SingleMode(const SingleMode&) = default;
+    SingleMode& operator=(const SingleMode&) = delete;
+
+    std::mutex _mutex;
+    std::atomic<SingleMode*> _instance;
+};
+```
+
+观察者模式，通过观察对象的变化，然后通知所有订阅的对象
+
+```
+一个解码器，订阅多个编码器,解码出来一帧，扔给多个编码器编码，
+实际上这个设计不太好，因为编码器不知道什么时候应该释放解码器分配的帧内存
+
+struct Frame
+{
+    char* data;
+    uint32_t len;
+};
+class IEncoder
+{
+public:
+    virtual void notifyToEncode(std::shared_ptr<Frame> frame) = 0;
+};
+
+class EncodeImpl:IEncoder
+{
+public:
+    void notifyToEncode(std::shared_ptr<Frame> frame)
+    {
+        std::cout << "now should start encode" << std::endl;
+    }
+}
+
+
+class IDecoder
+{
+public:
+    virtual void init() = 0;
+    virtual void deinit() = 0;
+    virtual void start() = 0;
+    virtual void addEncoder() = 0;
+    virtual void notifyEncoder() = 0;
+};
+
+class DecoderImpl:IDecoder
+{
+public:
+    void addEncoder(IEncoder* encoder)
+    {
+        if(_encoders)
+        {
+            _encoders.push_back(encoder);
+        }
+    }
+    void notifyEncoder()
+    {
+        for(auto enc:_encoders)
+        {
+            enc->notifyToEncode(_frame);
+        }
+    }
+    void start()
+    {
+        //解码完成一帧后直接通知编码
+        notifyEncoder();
+    }
+    std::shared_ptr<Frame> _frame;
+    std::queue<IEncoder*> _encoders;
+};
+int main()
+{
+    DecoderImpl dec;
+    for(int i=0; i<10; i++)
+    {
+        IEncoder* enc = new EncodeImpl();
+        dec.addEncoder(enc);
+    }
+    dec.start();
+}
+```
+
+代理模式，某一个对象不应该直接访问，应该使用间接的方式代理访问，在代理中增加对应的操作来控制对象的行为
+
+```
+例如访问一个服务器，需要先登录，才能访问
+class IServerCommond
+{
+public:
+    virtual void access() = 0;
+};
+
+class ServerCommondImpl:IServerCommond
+{
+public:
+    void access()
+    {
+        std::cout << "访问服务器" <<std::endl;
+    }
+}
+
+class ServerProxy:IServerCommond
+{
+public:
+    ServerProxy(std::string account, std::string password)
+    {
+        _server = new ServerCommondImpl;
+        _account = account;
+        _password = password;
+    }
+
+    void access()
+    {
+        if(_password == "123" && _account == "admin")
+        {
+            _server->access();
+        }
+        else
+        {
+            std::cout << "password wrong, access fail!" << std::endl;
+        }
+    }
+private:
+    ServerCommondImpl* _server;
+    std::string _account;
+    std::string _password;
+}
+```
+依赖倒置原则：实现依赖接口，上层依赖接口
+迪米特原则：类与类之间应该尽可能少的减少交互，减少耦合
+开闭原则：开放拓展，关闭修改
+
+装饰模式，将一个类中添加某些类的成员
